@@ -24,6 +24,19 @@ class World
 
     spawn_player: (@player) =>
 
+    collides: (thing) =>
+        -- TODO: real tiles, even the most primitive.
+        if thing.box.y > 400
+            return true
+
+        -- left boundary
+        if thing.box.x < 0
+            return true
+
+        -- right boundary
+        if thing.box.x > 800
+            return true
+
     draw: =>
         graphics.draw @bg, 0, 0
         @player\draw! if @player
@@ -32,7 +45,7 @@ class Game extends GameState
     new: =>
         game = self
         @w = World!
-        @player = Player @w, 0, 0
+        @player = Player @w, 100, 100
         @w\spawn_player @player
 
     update: (dt) =>

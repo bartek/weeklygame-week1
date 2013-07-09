@@ -12,7 +12,7 @@ casino full of dudes who for some ridiculous reason want to hurt your awesome se
 
 But guess what? You won't take that. Let's do it Rumble in the Bronx style and
 get these guys out of our way. Throw them into slot machines, over tables, into
-fountains. You'll be surprised to see that doing so yields so .. musical
+fountains. You'll be surprised to see that doing so yields.. musical
 enjoyment.
 
 Run
