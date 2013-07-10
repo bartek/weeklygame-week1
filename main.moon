@@ -26,7 +26,10 @@ class World
         @enemies = {}
         @_enemies_idx = 1
 
-        @spawner = EnemySpawner Vec2d(700, 0), random! * 1
+        @spawners = {
+            EnemySpawner "baddie", Vec2d(700, 0), random! * 2,
+            EnemySpawner "bossman", Vec2d(700, 0), random! * 10,
+        }
 
     spawn_player: (@player) =>
 
@@ -37,10 +40,10 @@ class World
 
     update: (dt) =>
         -- let the spawner know about the game world.
-        @spawner\update dt, self
+        for spawner in *@spawners
+            spawner\update dt, self
 
-        -- TODO: Is there a better way to iterate over tables?
-        for idx, enemy in pairs @enemies
+        for enemy in *@enemies
             enemy\update dt
 
     collides: (thing) =>
@@ -60,7 +63,7 @@ class World
         graphics.draw @bg, 0, 0
         @player\draw! if @player
 
-        for idx, enemy in pairs @enemies
+        for enemy in *@enemies
             enemy\draw dt
 
 class Game extends GameState

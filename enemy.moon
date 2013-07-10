@@ -7,6 +7,7 @@ require "util"
 export Enemy
 export EnemySpawner
 export Baddie
+export Bossman
 
 -- thanks leafo.
 -- spawns some hardcoded enemies at repeated random intervals.
@@ -22,7 +23,7 @@ class Repeater
         true
 
 class EnemySpawner
-    new: (@box, rate) =>
+    new: (@enemy_class, @box, rate) =>
         @repeater = Repeater rate, self\spawn
         mixin_object self, @repeater, { "update" }
 
@@ -34,7 +35,10 @@ class EnemySpawner
             -- reset always. endless stream!
             @current = nil
         else
-            @current = Baddie world, @box.x, @box.y
+            if @enemy_class == "baddie"
+                @current = Baddie world, @box.x, @box.y
+            elseif @enemy_class == "bossman"
+                @current = Bossman world, @box.x, @box.y
             world\add @current
 
 class Enemy extends Entity
@@ -42,9 +46,21 @@ class Enemy extends Entity
     type: "enemy"
 
 class Baddie extends Enemy
+    class: "baddie"
+
     new: (...) =>
         super ...
         @sprite = imgfy "images/baddie.png"
+
+    draw: =>
+        graphics.draw @sprite, @box.x, @box.y
+
+class Bossman extends Enemy
+    class: "bossman"
+
+    new: (...) =>
+        super ...
+        @sprite = imgfy "images/bossman.png"
 
     draw: =>
         graphics.draw @sprite, @box.x, @box.y
