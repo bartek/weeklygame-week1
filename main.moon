@@ -82,14 +82,21 @@ class Game extends GameState
         @w = World!
         @player = Player @w, 100, 100
         @w\spawn_player @player
+        @paused = false
 
     update: (dt) =>
+        if @paused
+            return
+
         @player\update dt
         @w\update dt
 
     keypressed: (key, code) =>
         if key == controls.attack
             @player\attack!
+
+        if key == "p"
+            @paused = not @paused
 
         os.exit! if key == "escape"
 
