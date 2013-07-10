@@ -13,6 +13,12 @@ controls = {
 
 sounds = {}
 
+export play_sound = (name) ->
+    s = sounds[name]
+    if s
+        s\rewind!
+        s\play!
+
 class GameState
     attach: (love) =>
         love.update = self\update
@@ -125,5 +131,8 @@ class Menu extends GameState
         os.exit! if key == "escape"
 
 love.load = ->
+
+    sounds.woosh = audio.newSource "sounds/woosh.wav", "static"
+
     game = Menu!
     game\attach love

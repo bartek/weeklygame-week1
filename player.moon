@@ -65,11 +65,17 @@ class Player extends Entity
         -- ensure we only attack at a certain rate.
         @time += dt
         while @time > @attack_rate
+            hit = false
             @time -= @attack_rate
+
             for enemy in *@world.enemies
                 if enemy.box\touches_box @box
                     if @attacking
                         enemy\onhit self
+                        hit = true
+
+            if @attacking and not hit
+                play_sound "woosh"
 
         @attacking = false
         super dt
