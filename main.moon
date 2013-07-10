@@ -1,9 +1,11 @@
 import setColor from love.graphics
 import graphics from love
+import random from math
 
 require "util"
 require "player"
 require "geometry"
+require "enemy"
 
 class GameState
     attach: (love) =>
@@ -21,8 +23,25 @@ class World
     gravity: Vec2d 0, 1000
     new: =>
         @bg = imgfy "images/bg.jpg"
+        @enemies = {}
+        @_enemies_idx = 1
+
+        @spawner = EnemySpawner Vec2d(700, 0), random! * 1
 
     spawn_player: (@player) =>
+
+    add: (entity) =>
+        if entity.type == "enemy"
+            @enemies[@_enemies_idx] = entity
+            @_enemies_idx += 1
+
+    update: (dt) =>
+        -- let the spawner know about the game world.
+        @spawner\update dt, self
+
+        -- TODO: Is there a better way to iterate over tables?
+        for idx, enemy in pairs @enemies
+            enemy\update dt
 
     collides: (thing) =>
         -- TODO: real tiles, even the most primitive.
@@ -41,6 +60,9 @@ class World
         graphics.draw @bg, 0, 0
         @player\draw! if @player
 
+        for idx, enemy in pairs @enemies
+            enemy\draw dt
+
 class Game extends GameState
     new: =>
         game = self
@@ -50,6 +72,7 @@ class Game extends GameState
 
     update: (dt) =>
         @player\update dt
+        @w\update dt
 
     draw: =>
         @w\draw!

@@ -3,6 +3,7 @@ require "geometry"
 export Entity
 
 class Entity
+    speed: 200
     w: 20
     h: 20
 
