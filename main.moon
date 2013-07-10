@@ -7,6 +7,10 @@ require "player"
 require "geometry"
 require "enemy"
 
+controls = {
+    attack: "f"
+}
+
 class GameState
     attach: (love) =>
         love.update = self\update
@@ -82,6 +86,12 @@ class Game extends GameState
     update: (dt) =>
         @player\update dt
         @w\update dt
+
+    keypressed: (key, code) =>
+        if key == controls.attack
+            @player\attack!
+
+        os.exit! if key == "escape"
 
     draw: =>
         @w\draw!

@@ -30,6 +30,7 @@ class Player extends Entity
         @facing = "right"
         @time = 0
         @attack_rate = 0.1
+        @attacking = false
 
     move: (dx, dy) =>
         -- print "move: ", dx, dy
@@ -54,9 +55,8 @@ class Player extends Entity
             dx = 1
         dx
 
-    do_hit: (attack, enemy) =>
-        if attack == "f"
-            enemy\onhit self
+    attack: =>
+        @attacking = true
 
     update: (dt) =>
         -- TODO: 
@@ -68,9 +68,10 @@ class Player extends Entity
             @time -= @attack_rate
             for enemy in *@world.enemies
                 if enemy.box\touches_box @box
-                    if keyboard.isDown "f"
-                        @do_hit('f', enemy)
+                    if @attacking
+                        enemy\onhit self
 
+        @attacking = false
         super dt
 
     draw: =>
