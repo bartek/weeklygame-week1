@@ -42,10 +42,14 @@ class EnemySpawner
             world\add @current
 
 class Enemy extends Entity
-    speed: 100
+    speed: 150
     type: "enemy"
     alive: true
     health: 10
+
+    new: (...) =>
+        super ...
+        @facing = "left"
 
     onhit: (by) =>
         print "I am hit.", self
@@ -54,9 +58,16 @@ class Enemy extends Entity
         return @health > 0
 
     do_dx: (dt) =>
+        -- TODO: Know about the world limits.
         if @box.x <= 0
-            dx 1
-        dx
+            @facing = "right"
+        elseif @box.x >= 800
+            @facing = "left"
+
+        if @facing == "left"
+            -1
+        elseif @facing == "right"
+            1
 
     die: () =>
         print "I am dead."
