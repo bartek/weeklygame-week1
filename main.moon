@@ -1,5 +1,5 @@
 import setColor from love.graphics
-import graphics from love
+import audio, graphics from love
 import random from math
 
 require "util"
@@ -10,6 +10,8 @@ require "enemy"
 controls = {
     attack: "f"
 }
+
+sounds = {}
 
 class GameState
     attach: (love) =>
@@ -122,6 +124,6 @@ class Menu extends GameState
 
         os.exit! if key == "escape"
 
-love.draw = ->
+love.load = ->
     game = Menu!
     game\attach love
