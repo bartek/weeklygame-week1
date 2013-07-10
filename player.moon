@@ -28,9 +28,11 @@ class Player extends Entity
         super world, x, y
         @sprite = imgfy "images/jackie.png"
         @facing = "right"
+        @time = 0
+        @attack_rate = 0.1
 
     move: (dx, dy) =>
-        print "move: ", dx, dy
+        -- print "move: ", dx, dy
         super dx, dy
 
     do_gravity: (dt) =>
@@ -52,9 +54,23 @@ class Player extends Entity
             dx = 1
         dx
 
+    do_hit: (attack, enemy) =>
+        if attack == "f"
+            enemy\onhit self
+
     update: (dt) =>
         -- TODO: 
         -- animate jackie.
+
+        -- ensure we only attack at a certain rate.
+        @time += dt
+        while @time > @attack_rate
+            @time -= @attack_rate
+            for enemy in *@world.enemies
+                if enemy.box\touches_box @box
+                    if keyboard.isDown "f"
+                        @do_hit('f', enemy)
+
         super dt
 
     draw: =>

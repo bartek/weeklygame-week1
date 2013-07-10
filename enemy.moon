@@ -44,6 +44,18 @@ class EnemySpawner
 class Enemy extends Entity
     speed: 100
     type: "enemy"
+    alive: true
+    health: 10
+
+    onhit: (by) =>
+        print "I am hit.", self
+        @health -= 5
+        @die! if @health == 0
+        return @health > 0
+
+    die: () =>
+        print "I am dead."
+        @alive = false
 
 class Baddie extends Enemy
     class: "baddie"
@@ -53,7 +65,8 @@ class Baddie extends Enemy
         @sprite = imgfy "images/baddie.png"
 
     draw: =>
-        graphics.draw @sprite, @box.x, @box.y
+        if @alive
+            graphics.draw @sprite, @box.x, @box.y
 
 class Bossman extends Enemy
     class: "bossman"
@@ -63,4 +76,5 @@ class Bossman extends Enemy
         @sprite = imgfy "images/bossman.png"
 
     draw: =>
-        graphics.draw @sprite, @box.x, @box.y
+        if @alive
+            graphics.draw @sprite, @box.x, @box.y

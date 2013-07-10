@@ -33,6 +33,12 @@ class World
 
     spawn_player: (@player) =>
 
+    -- TODO: We can change "enemies" to be a class object that acts like a list,
+    -- and that object can contain these kinds of functions.
+    remove_enemy: (index) =>
+        print "remove_enemy"
+        @enemies[index] = nil
+
     add: (entity) =>
         if entity.type == "enemy"
             @enemies[@_enemies_idx] = entity
@@ -48,7 +54,7 @@ class World
 
     collides: (thing) =>
         -- TODO: real tiles, even the most primitive.
-        if thing.box.y > 400
+        if thing.box.y > 500
             return true
 
         -- left boundary
