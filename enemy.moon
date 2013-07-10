@@ -53,6 +53,11 @@ class Enemy extends Entity
         @die! if @health == 0
         return @health > 0
 
+    do_dx: (dt) =>
+        if @box.x <= 0
+            dx 1
+        dx
+
     die: () =>
         print "I am dead."
         @alive = false
