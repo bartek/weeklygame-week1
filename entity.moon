@@ -12,6 +12,7 @@ class Entity
         @on_ground = false
         @velocity = Vec2d 0, 0
         @box = Box x, y, @w, @h
+        @x_knock = 0
 
     move: (dx, dy) =>
         collided_x = false
@@ -69,8 +70,18 @@ class Entity
         @do_gravity dt
 
         speed = @speed
+        speed /= 1.2 if math.abs(@x_knock) > 30
+
         delta = Vec2d dx * speed, 0
         delta += @velocity
+
+        if @x_knock != 0
+            delta[1] += @x_knock
+            ax = math.abs(@x_knock)
+            if ax <= 0.001
+                @x_knock = 0
+            else
+                @x_knock -= 200*dt
 
         delta[1] = @speed if delta[1] > @speed
         delta[1] = -@speed if delta[1] < -@speed

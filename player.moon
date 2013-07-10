@@ -29,7 +29,7 @@ class Player extends Entity
         @sprite = imgfy "images/jackie.png"
         @facing = "right"
         @time = 0
-        @attack_rate = 0.1
+        @attack_rate = 0.05
         @attacking = false
 
     move: (dx, dy) =>

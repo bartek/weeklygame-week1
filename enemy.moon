@@ -55,6 +55,7 @@ class Enemy extends Entity
         print "I am hit.", self
         @health -= 5
         @die! if @health == 0
+        @x_knock = 200
         return @health > 0
 
     do_dx: (dt) =>
