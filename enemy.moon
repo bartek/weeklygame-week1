@@ -1,5 +1,5 @@
 import graphics from love
-import random from math
+import abs, random from math
 
 require "entity"
 require "util"
@@ -9,8 +9,49 @@ export EnemySpawner
 export Baddie
 export Bossman
 
--- thanks leafo.
--- spawns some hardcoded enemies at repeated random intervals.
+-- thanks leafo. most code in this module is ripped from his ludum dare
+-- game, mostly for learning and tinkering experiences.
+-- (https://github.com/leafo)
+-- various actions that a monster can do. Need to investigate exactly 
+-- how actions get the scope on these variables.
+actions = {
+  wait: (time) ->
+    (dt, world) =>
+      time -= dt
+      time < 0
+
+  jump: (height) ->
+    (dt, world) =>
+      @velocity[2] = -height
+      true
+
+  move_x: (dist, speed) ->
+    dx = 0
+    (dt, world) =>
+      dx += speed * dt
+      a = abs dx
+
+      if a > 1
+        dist -= a
+        cy, cx = @move dx, 0
+        dx = 0
+        return true if cx
+
+      dist <= 0
+}
+
+class Act
+  new: (@entity, @get_next) =>
+    @current_action = nil
+
+  update: (dt, world) =>
+    if not @current_action
+      @current_action = self.get_next!
+
+    if @current_action
+      finished = self.current_action @entity, dt, world
+      if finished
+        @current_action = nil
 
 class Repeater
     new: (@rate, @action) => @time = @rate * random!
@@ -52,6 +93,20 @@ class Enemy extends Entity
         super ...
         @facing = "left"
 
+        -- anonymous function created where we randomly choose an action
+        @act = Act self, ->
+            return false if not @on_ground
+
+            r = random 1,5
+            if r > 4
+                actions.jump 400
+            elseif r > 1
+                direction = if random! < 0.5
+                            -1 else 1
+                actions.move_x 15, direction * 100
+            else
+                actions.wait 10
+
     onhit: (by) =>
         print "I am hit.", self
         @health -= 5
@@ -80,6 +135,7 @@ class Enemy extends Entity
             if @hit_cooldown < 0
                 @hit_cooldown = nil
 
+        @act\update dt, world
         super dt
 
     die: () =>
