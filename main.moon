@@ -114,16 +114,26 @@ class World
             enemy\draw dt
 
 class GameOver extends GameState
-    new: (@game) =>
+    new: (@game, @time) =>
     keypressed: (key, code) =>
         if key == "return"
             -- Blow the world up!
+            @game.start = love.timer.getTime()
             @game.player.health = 100
             @game.player.attacking = "taunt"
             @game\attach love
 
     draw: =>
-        graphics.print "Game over", 0, 0
+        graphics.setColor 213, 61, 197
+        x = screen.width / 2
+        y = screen.height / 2
+
+        graphics.print "JACKIE TOOK", x - 100, y,
+                0, 2, 2, 0, 0
+        graphics.print @time .. " SECONDS", x - 100, y + 50,
+                0, 2, 2, 0, 0
+        graphics.print "OF PAIN", x - 100, y + 100,
+                0, 2, 2, 0, 0
 
 class Game extends GameState
     new: =>
@@ -134,12 +144,16 @@ class Game extends GameState
         @paused = false
         @health_bar = HealthBar!
 
+        -- start game timer
+        @start = love.timer.getTime()
+
     update: (dt) =>
         if @paused
             return
 
         if @player.health <= 0
-            GameOver(self)\attach love
+            time = math.ceil(love.timer.getTime() - @start)
+            GameOver(self, time)\attach love
             return
 
         @player\update dt
