@@ -5,13 +5,15 @@ export Entity
 class Entity
     speed: 200
     w: 20
-    h: 20
+    h: 40
 
     new: (world, x=0, y=0) =>
         @world = world
         @on_ground = false
         @velocity = Vec2d 0, 0
-        @box = Box x, y, @w, @h
+
+        -- box should be drawn in the center of the entity.
+        @box = Box x + @w, y, @w, @h
         @x_knock = 0
 
     move: (dx, dy) =>

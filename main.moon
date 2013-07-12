@@ -14,6 +14,12 @@ controls = {
 
 sounds = {}
 
+screen = {
+    width: 800
+    height: 600
+    floor: 500
+}
+
 export play_sound = (name) ->
     s = sounds[name]
     if s
@@ -31,6 +37,27 @@ class GameState
     draw: =>
     keypressed: =>
     mousepressed: =>
+
+class HealthBar
+    -- a rectangle filled with health
+    new: =>
+        @value = 100
+        @max = @value
+        @width = 100
+        @padding = 10
+    
+    draw: =>
+        x = screen.width - @width - @padding
+        y = @padding
+        graphics.setColor 255, 255, 255
+        graphics.rectangle("line", x - 2, y - 2, @width + 2, 28)
+
+        if math.floor(@max / @value) >= 10
+            graphics.setColor 213, 61, 31, 255
+        else
+            graphics.setColor 87, 219, 31, 255
+        graphics.rectangle("fill", x, y, @value, 25)
+
 
 class World
     gravity: Vec2d 0, 1000
@@ -64,12 +91,9 @@ class World
 
         for enemy in *@enemies
             enemy\update dt
-            -- TODO. We can kill enemies here from the list if they lack health.
 
     collides: (thing) =>
-        -- TODO: real tiles, even the most primitive.
-        -- TODO: Remove magic values. Constants
-        if thing.box.y > 500
+        if thing.box.y > screen.floor
             return true
 
         -- left boundary
@@ -77,10 +101,12 @@ class World
             return true
 
         -- right boundary
-        if thing.box.x > 800
+        if thing.box.x > screen.width
             return true
 
     draw: =>
+        -- reset colour
+        graphics.setColor 255, 255, 255
         graphics.draw @bg, 0, 0
         @player\draw! if @player
 
@@ -88,6 +114,14 @@ class World
             enemy\draw dt
 
 class GameOver extends GameState
+    new: (@game) =>
+    keypressed: (key, code) =>
+        if key == "return"
+            -- Blow the world up!
+            @game.player.health = 100
+            @game.player.attacking = "taunt"
+            @game\attach love
+
     draw: =>
         graphics.print "Game over", 0, 0
 
@@ -98,18 +132,18 @@ class Game extends GameState
         @player = Player @w, 100, 100
         @w\spawn_player @player
         @paused = false
-        @timer = 1000 -- arbitrary value for now.
+        @health_bar = HealthBar!
 
     update: (dt) =>
         if @paused
             return
 
-        @timer -= (dt * love.timer.getFPS())
-        if @timer < 0
+        if @player.health <= 0
             GameOver(self)\attach love
             return
 
         @player\update dt
+        @health_bar.value = @player.health
         @w\update dt
 
     keypressed: (key, code) =>
@@ -125,6 +159,7 @@ class Game extends GameState
 
     draw: =>
         @w\draw!
+        @health_bar\draw!
 
 class Menu extends GameState
     new: =>
@@ -150,6 +185,7 @@ love.load = ->
     sounds.punch = audio.newSource "sounds/punch.wav", "static"
     sounds.slot = audio.newSource "sounds/slot.wav", "static"
     sounds.cheer = audio.newSource "sounds/cheer.wav", "static"
+    sounds.bump = audio.newSource "sounds/bump.wav", "static"
 
     background = audio.newSource "sounds/turkish-patrol.ogg", "streaming"
     background\setLooping true

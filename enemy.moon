@@ -73,6 +73,9 @@ class Enemy extends Entity
             1
 
     update: (dt) =>
+        if not @alive
+            false
+
         if @hit_cooldown
             @hit_cooldown -= dt
             if @hit_cooldown < 0
@@ -94,6 +97,8 @@ class Baddie extends Enemy
     draw: =>
         if @alive
             graphics.draw @sprite, @box.x, @box.y
+            graphics.rectangle "line",
+                @box.x, @box.y, @w, @h
 
 class Bossman extends Enemy
     class: "bossman"

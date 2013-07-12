@@ -22,17 +22,21 @@ locals: =>
 hit_cooldown = 2.0
 
 class Player extends Entity
-    speed: 200
-    w: 20
-    h: 20
+    speed: 300
+    w: 40
+    h: 60
+    health: 100
+    jump: 500
+    punch: { w: 30, h: 10 }
 
     new: (world, x=0, y=0) =>
         super world, x, y
         @sprite = imgfy "images/jackie.png"
         @facing = "right"
         @time = 0
-        @attack_rate = 0.05
+        @attack_rate = 0.02
         @attacking = false
+        @a_box = nil
 
     move: (dx, dy) =>
         -- print "move: ", dx, dy
@@ -43,7 +47,7 @@ class Player extends Entity
         -- with a specific amount of strength. Afterwards, gravity will push
         -- it down.
         if @on_ground and keyboard.isDown " "
-            @velocity[2] = -400
+            @velocity[2] = -@jump
         else
             @velocity += @world.gravity * dt
 
@@ -68,44 +72,57 @@ class Player extends Entity
             kill_count = 0
             @time -= @attack_rate
 
+            if @attacking
+                -- punch box! the enemy is taking the punch, not our face
+                @a_box = Box @box.x + @box.w,
+                    @box.y + (@box.h / 2),
+                    @punch.w, @punch.h
+
             for enemy in *@world.enemies
-                if enemy.box\touches_box @box
+                if @attacking and enemy.alive and enemy.box\touches_box @a_box
                     if @attacking == "punch"
                         if enemy\onhit self
                             play_sound "punch"
                         else
                             kill_count += 1
                             play_sound "slot"
-                        hit = true
                         
                 if @attacking == "taunt"
                     hit = true
                     enemy\die!
                     play_sound "cheer"
 
-            if @attacking and not hit
-                play_sound "woosh"
-
         @attacking = false
-        @attacking
+        @a_box = nil
+        false
+
+    onhit: (enemy) =>
+        enemy.hit_cooldown = hit_cooldown
+        --- bounce!
+        @velocity[2] = -200
+        @x_knock = -200
+        @health -= 12
+        play_sound "bump"
 
     update: (dt) =>
         -- TODO: 
         -- animate jackie.
-        @do_attack dt
+        hit = @do_attack dt
+        if @attacking and not hit
+            play_sound "woosh"
 
         for enemy in *@world.enemies
-            if not enemy.hit_cooldown and enemy.box\touches_box @box
-                @onhit enemy
-                enemy.hit_cooldown = hit_cooldown
-                --- bounce!
-                @velocity[2] = -200
-                @x_knock = -200
+            if enemy.alive and enemy.box\touches_box @box
+                if not enemy.hit_cooldown
+                    @onhit enemy
 
         super dt
 
     draw: =>
         graphics.draw @sprite, @box.x, @box.y
-        graphics.print @box.x .. "," .. @box.y, 0, 0
-        graphics.print "on_ground " .. tostring(@on_ground), 0, 12
-        graphics.print "velocity" .. tostring(@velocity), 0, 36
+        graphics.rectangle "line",
+            @box.x, @box.y, @w, @h
+        if @a_box
+            graphics.rectangle "line",
+                @a_box.x, @a_box.y, @punch.w, @punch.h
+
