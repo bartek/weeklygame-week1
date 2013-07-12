@@ -78,7 +78,9 @@ class Entity
         if @x_knock != 0
             delta[1] += @x_knock
             ax = math.abs(@x_knock)
-            if ax <= 0.001
+            if @on_ground
+                @x_knock = 0
+            elseif ax <= 0.001
                 @x_knock = 0
             else
                 @x_knock -= 200*dt

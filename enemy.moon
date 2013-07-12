@@ -46,6 +46,7 @@ class Enemy extends Entity
     type: "enemy"
     alive: true
     health: 10
+    hit_cooldown: nil
 
     new: (...) =>
         super ...
@@ -56,6 +57,7 @@ class Enemy extends Entity
         @health -= 5
         @die! if @health == 0
         @x_knock = 200
+        @velocity[2] = -200
         return @health > 0
 
     do_dx: (dt) =>
@@ -69,6 +71,14 @@ class Enemy extends Entity
             -1
         elseif @facing == "right"
             1
+
+    update: (dt) =>
+        if @hit_cooldown
+            @hit_cooldown -= dt
+            if @hit_cooldown < 0
+                @hit_cooldown = nil
+
+        super dt
 
     die: () =>
         print "I am dead."

@@ -8,7 +8,8 @@ require "geometry"
 require "enemy"
 
 controls = {
-    attack: "f"
+    attack: "f",
+    taunt: "g"
 }
 
 sounds = {}
@@ -63,9 +64,11 @@ class World
 
         for enemy in *@enemies
             enemy\update dt
+            -- TODO. We can kill enemies here from the list if they lack health.
 
     collides: (thing) =>
         -- TODO: real tiles, even the most primitive.
+        -- TODO: Remove magic values. Constants
         if thing.box.y > 500
             return true
 
@@ -84,6 +87,10 @@ class World
         for enemy in *@enemies
             enemy\draw dt
 
+class GameOver extends GameState
+    draw: =>
+        graphics.print "Game over", 0, 0
+
 class Game extends GameState
     new: =>
         game = self
@@ -91,9 +98,15 @@ class Game extends GameState
         @player = Player @w, 100, 100
         @w\spawn_player @player
         @paused = false
+        @timer = 1000 -- arbitrary value for now.
 
     update: (dt) =>
         if @paused
+            return
+
+        @timer -= (dt * love.timer.getFPS())
+        if @timer < 0
+            GameOver(self)\attach love
             return
 
         @player\update dt
@@ -101,7 +114,9 @@ class Game extends GameState
 
     keypressed: (key, code) =>
         if key == controls.attack
-            @player\attack!
+            @player\attack "punch"
+        elseif key == controls.taunt
+            @player\attack "taunt"
 
         if key == "p"
             @paused = not @paused
@@ -131,8 +146,14 @@ class Menu extends GameState
         os.exit! if key == "escape"
 
 love.load = ->
-
     sounds.woosh = audio.newSource "sounds/woosh.wav", "static"
+    sounds.punch = audio.newSource "sounds/punch.wav", "static"
+    sounds.slot = audio.newSource "sounds/slot.wav", "static"
+    sounds.cheer = audio.newSource "sounds/cheer.wav", "static"
+
+    background = audio.newSource "sounds/turkish-patrol.ogg", "streaming"
+    background\setLooping true
+    background\play!
 
     game = Menu!
     game\attach love

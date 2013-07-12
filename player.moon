@@ -19,6 +19,8 @@ locals: =>
     idx += 1
   variables
 
+hit_cooldown = 2.0
+
 class Player extends Entity
     speed: 200
     w: 20
@@ -55,29 +57,51 @@ class Player extends Entity
             dx = 1
         dx
 
-    attack: =>
-        @attacking = true
+    attack: (action) =>
+        @attacking = action
 
-    update: (dt) =>
-        -- TODO: 
-        -- animate jackie.
-
+    do_attack: (dt) =>
         -- ensure we only attack at a certain rate.
         @time += dt
         while @time > @attack_rate
             hit = false
+            kill_count = 0
             @time -= @attack_rate
 
             for enemy in *@world.enemies
                 if enemy.box\touches_box @box
-                    if @attacking
-                        enemy\onhit self
+                    if @attacking == "punch"
+                        if enemy\onhit self
+                            play_sound "punch"
+                        else
+                            kill_count += 1
+                            play_sound "slot"
                         hit = true
+                        
+                if @attacking == "taunt"
+                    hit = true
+                    enemy\die!
+                    play_sound "cheer"
 
             if @attacking and not hit
                 play_sound "woosh"
 
         @attacking = false
+        @attacking
+
+    update: (dt) =>
+        -- TODO: 
+        -- animate jackie.
+        @do_attack dt
+
+        for enemy in *@world.enemies
+            if not enemy.hit_cooldown and enemy.box\touches_box @box
+                @onhit enemy
+                enemy.hit_cooldown = hit_cooldown
+                --- bounce!
+                @velocity[2] = -200
+                @x_knock = -200
+
         super dt
 
     draw: =>
