@@ -14,7 +14,7 @@ controls = {
 
 sounds = {}
 
-screen = {
+export screen = {
     width: 800
     height: 600
     floor: 500

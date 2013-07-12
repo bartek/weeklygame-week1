@@ -61,10 +61,9 @@ class Enemy extends Entity
         return @health > 0
 
     do_dx: (dt) =>
-        -- TODO: Know about the world limits.
         if @box.x <= 0
             @facing = "right"
-        elseif @box.x >= 800
+        elseif @box.x >= screen.width
             @facing = "left"
 
         if @facing == "left"
