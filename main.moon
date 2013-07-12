@@ -39,7 +39,6 @@ class GameState
     mousepressed: =>
 
 class HealthBar
-    -- a rectangle filled with health
     new: =>
         @value = 100
         @max = @value
@@ -67,7 +66,7 @@ class World
         @_enemies_idx = 1
 
         @spawners = {
-            EnemySpawner "baddie", Vec2d(700, 0), random! * 2,
+            EnemySpawner "baddie", Vec2d(700, 0), random! * 3,
             EnemySpawner "bossman", Vec2d(700, 0), random! * 10,
         }
 
@@ -80,6 +79,7 @@ class World
         @enemies[index] = nil
 
     add: (entity) =>
+        -- TODO: Gross.
         if entity.type == "enemy"
             @enemies[@_enemies_idx] = entity
             @_enemies_idx += 1
