@@ -151,9 +151,7 @@ class Baddie extends Enemy
 
     draw: =>
         if @alive
-            graphics.draw @sprite, @box.x, @box.y
-            graphics.rectangle "line",
-                @box.x, @box.y, @w, @h
+            @sprite\draw @box.x, @box.y
 
 class Bossman extends Enemy
     class: "bossman"
@@ -164,4 +162,4 @@ class Bossman extends Enemy
 
     draw: =>
         if @alive
-            graphics.draw @sprite, @box.x, @box.y
+            @sprite\draw @box.x, @box.y

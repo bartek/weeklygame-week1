@@ -107,7 +107,7 @@ class World
     draw: =>
         -- reset colour
         graphics.setColor 255, 255, 255
-        graphics.draw @bg, 0, 0
+        @bg\draw 0, 0
         @player\draw! if @player
 
         for enemy in *@enemies
@@ -185,6 +185,8 @@ class Menu extends GameState
     draw: =>
         setColor 255,255,255,255
         graphics.print @title, 300, 100
+
+        graphics.print "Space to jump, F to punch", 300, 200
 
     update: (dt) =>
         if @game

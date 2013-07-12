@@ -3,6 +3,7 @@ import keyboard, graphics from love
 require "util"
 require "geometry"
 require "entity"
+require "lovekit.spriter"
 
 export Player
 export locals
@@ -23,15 +24,25 @@ hit_cooldown = 2.0
 
 class Player extends Entity
     speed: 300
-    w: 40
-    h: 60
+    w: 48
+    h: 64
     health: 100
     jump: 500
     punch: { w: 30, h: 10 }
 
     new: (world, x=0, y=0) =>
         super world, x, y
-        @sprite = imgfy "images/jackie.png"
+        -- set padding on the sprite so the box is smaller. collisions to
+        -- the human eye look saner.
+        sprite = Spriter "images/jackie.png", @w, @h, 0
+
+        @anim = StateAnim "right", {
+            right: sprite\seq {0}, 0,
+            left: sprite\seq {0}, 0, true
+            punch_right: sprite\seq {1}, 0
+            punch_left: sprite\seq {1}, 0, true
+        }
+
         @facing = "right"
         @time = 0
         @attack_rate = 0.02
@@ -74,6 +85,9 @@ class Player extends Entity
 
             if @attacking
                 -- punch box! the enemy is taking the punch, not our face
+                @anim\set_state "punch_" .. @facing
+                @anim\draw @box.x, @box.y
+
                 @a_box = Box @box.x + @box.w,
                     @box.y + (@box.h / 2),
                     @punch.w, @punch.h
@@ -87,7 +101,6 @@ class Player extends Entity
                             kill_count += 1
                             play_sound "slot"
 
-        @attacking = false
         @a_box = nil
         false
 
@@ -100,11 +113,16 @@ class Player extends Entity
         play_sound "bump"
 
     update: (dt) =>
-        -- TODO: 
-        -- animate jackie.
+        @anim\update dt
+
+        state = @facing
+        @anim\set_state state
+
         hit = @do_attack dt
-        if @attacking and not hit
-            play_sound "woosh"
+        if @attacking
+            @attacking = false
+            if not hit
+                play_sound "woosh"
 
         for enemy in *@world.enemies
             if enemy.alive and enemy.box\touches_box @box
@@ -114,9 +132,8 @@ class Player extends Entity
         super dt
 
     draw: =>
-        graphics.draw @sprite, @box.x, @box.y
-        graphics.rectangle "line",
-            @box.x, @box.y, @w, @h
+        @anim\draw @box.x, @box.y
+        --graphics.rectangle "line", @box.x, @box.y, @w, @h
         if @a_box
             graphics.rectangle "line",
                 @a_box.x, @a_box.y, @punch.w, @punch.h
