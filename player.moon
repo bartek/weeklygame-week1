@@ -86,11 +86,6 @@ class Player extends Entity
                         else
                             kill_count += 1
                             play_sound "slot"
-                        
-                if @attacking == "taunt"
-                    hit = true
-                    enemy\die!
-                    play_sound "cheer"
 
         @attacking = false
         @a_box = nil

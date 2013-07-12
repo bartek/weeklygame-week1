@@ -119,8 +119,11 @@ class GameOver extends GameState
         if key == "return"
             -- Blow the world up!
             @game.start = love.timer.getTime()
+            for enemy in *@game.w.enemies
+                enemy\die!
+                play_sound "cheer"
+
             @game.player.health = 100
-            @game.player.attacking = "taunt"
             @game\attach love
 
     draw: =>
